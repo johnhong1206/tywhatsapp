@@ -39,8 +39,6 @@ const CreateChat: FC = () => {
     return unsubscribe;
   }, [db, email]);
 
-  console.log(input);
-
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(db, "users")),
@@ -49,7 +47,7 @@ const CreateChat: FC = () => {
       }
     );
     return unsubscribe;
-  }, [db, input]);
+  }, [db]);
 
   const creteChat = (): void => {
     const filteruser = userList.filter(

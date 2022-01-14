@@ -2,7 +2,8 @@ import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 
 import Head from "next/head";
-import { useContext } from "react";
+import { useRouter } from "next/router";
+import { useContext, useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { createChatModalState } from "../atoms/createChatModalAtoms";
 import { UpdateProfileImageState } from "../atoms/uploadImageAtoms";
@@ -11,13 +12,20 @@ import CreateChat from "../components/CreateChat";
 import HomeSidebar from "../components/HomeSidebar";
 import UpdateModal from "../components/updateModal";
 import { AuthContext } from "../context/AuthContext";
-
-const Sidebar = dynamic(() => import("../components/Sidebar"));
+import login from "./login";
 
 const Home: NextPage = () => {
+  const user = useContext(AuthContext);
+  const router = useRouter();
   const [createChatModal] = useRecoilState<boolean>(createChatModalState);
 
   const [updateProfile] = useRecoilState<boolean>(UpdateProfileImageState);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  });
 
   return (
     <div>
