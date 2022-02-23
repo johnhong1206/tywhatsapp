@@ -79,7 +79,7 @@ const ChatScreen: FC<Props> = ({ chat }) => {
   useEffect(() => {
     onSnapshot(
       query(
-        collection(db, "chats", id as string, "messages"),
+        collection(db, "chats", id! as string, "messages"),
         orderBy("timeStamp", "asc")
       ),
       (snapshot) => {

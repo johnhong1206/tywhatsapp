@@ -12,22 +12,14 @@ import CreateChat from "../components/CreateChat";
 import HomeSidebar from "../components/HomeSidebar";
 import UpdateModal from "../components/updateModal";
 import { AuthContext } from "../context/AuthContext";
-import login from "./login";
+import Login from "./login";
 
 const Home: NextPage = () => {
   const user = useContext(AuthContext);
-  const router = useRouter();
   const [createChatModal] = useRecoilState<boolean>(createChatModalState);
-
   const [updateProfile] = useRecoilState<boolean>(UpdateProfileImageState);
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  });
-
-  return (
+  return user ? (
     <div>
       <Head>
         <title>zh Whatsapp</title>
@@ -40,6 +32,8 @@ const Home: NextPage = () => {
       {updateProfile && <UpdateModal />}
       {createChatModal && <CreateChat />}
     </div>
+  ) : (
+    <Login />
   );
 };
 

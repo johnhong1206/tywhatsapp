@@ -41,6 +41,7 @@ const Sidebar: FC = () => {
   >([]);
 
   const [userData, setUserData] = useState<DocumentSnapshot<DocumentData>>();
+  const uid = user?.uid as string;
 
   const img = user
     ? userData?.data()?.photoURL
@@ -48,7 +49,7 @@ const Sidebar: FC = () => {
   const email = user ? user?.email : "admin@gmail.com";
 
   const fetchUserData = async () => {
-    const docRef = doc(db, "users", user?.uid as string);
+    const docRef = doc(db, "users", uid!);
     const docSnap = await getDoc(docRef);
     setUserData(docSnap);
   };
@@ -72,7 +73,7 @@ const Sidebar: FC = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(db, "chats"), where("users", "array-contains", email)),
+      query(collection(db, "chats"), where("users", "array-contains", email!)),
       (snapshot) => {
         setLoading(false);
         setChat(snapshot.docs);
@@ -95,13 +96,13 @@ const Sidebar: FC = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(db, "users"), where("email", "!=", user?.email)),
+      query(collection(db, "users"), where("email", "!=", email!)),
       (snapshot) => {
         setUserList(snapshot.docs);
       }
     );
     return unsubscribe;
-  }, [db]);
+  }, [db, email]);
 
   return (
     <div className="hidden lg:flex flex-col h-full max-h-screen w-screen md:w-3/12 bg-white overflow-hidden sticky top-0 left-0">

@@ -25,6 +25,7 @@ const Chat: FC<Props> = ({ key, id, users }) => {
   const [chatUser, setChatUser] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [getChatId, setChatId] = useRecoilState(chatId);
+  const [recipient, setRecipient] = useState<any>([]);
 
   const router = useRouter();
   const [recipientSnapShot, setRecipientSnapShot] = useState<DocumentData[]>(
@@ -47,8 +48,13 @@ const Chat: FC<Props> = ({ key, id, users }) => {
       }
     );
   }, [db, chatUser]);
-  console.log(recipientSnapShot);
-  const recipient = recipientSnapShot[0]?.data();
+
+  useEffect(() => {
+    if (recipientSnapShot.length > 0) {
+      setLoading(false);
+      setRecipient(recipientSnapShot[0]?.data());
+    }
+  }, [recipientSnapShot]);
 
   const enterChat = () => {
     setChatId(id);
@@ -57,25 +63,27 @@ const Chat: FC<Props> = ({ key, id, users }) => {
   };
 
   return (
-    <div
-      key={key}
-      onClick={enterChat}
-      className="flex items-center cursor-pointer p-4 hover:text-white hover:bg-[#d99ec9] hover:bg-gradient-to-l from-[#f6f0c4] hover:bg-opacity-50 space-x-2"
-    >
-      {recipient ? (
-        <img
-          src={recipient?.photoURL}
-          className="w-12 h-12 rounded-full"
-          alt={recipient?.username}
-        />
-      ) : (
-        <img src={recipient?.photoURL} />
-      )}
-      <div className="flex flex-col ">
-        <p className="font-bold">{recipient?.username}</p>
-        <p className="font-light text-sm">{recipient?.email}</p>
-      </div>
-    </div>
+    <>
+      {!loading ? (
+        <div
+          key={key}
+          onClick={enterChat}
+          className="flex items-center cursor-pointer p-4 hover:text-white hover:bg-[#d99ec9] hover:bg-gradient-to-l from-[#f6f0c4] hover:bg-opacity-50 space-x-2"
+        >
+          <img
+            loading="lazy"
+            src={recipient?.photoURL!}
+            className="w-12 h-12 rounded-full"
+            alt={recipient?.username!}
+          />
+
+          <div className="flex flex-col ">
+            <p className="font-bold">{recipient?.username}</p>
+            <p className="font-light text-sm">{recipient?.email}</p>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 };
 

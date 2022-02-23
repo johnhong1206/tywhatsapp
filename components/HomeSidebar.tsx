@@ -39,18 +39,19 @@ const HomeSidebar: FC = () => {
   const [userList, setUserList] = useState<
     QueryDocumentSnapshot<DocumentData>[]
   >([]);
+  const uid = user?.uid as string;
 
   const img = user
-    ? userData?.data()?.photoURL
+    ? (userData?.data()?.photoURL as string)
     : "https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg";
-  const email = user ? user?.email : "admin@gmail.com";
+  const email = user?.email as string;
 
-  const fetchUserData = async () => {
-    const docRef = doc(db, "users", user?.uid as string);
-    const docSnap = await getDoc(docRef);
-    setUserData(docSnap);
-  };
   useEffect(() => {
+    const fetchUserData = async () => {
+      const docRef = doc(db, "users", uid!);
+      const docSnap = await getDoc(docRef);
+      setUserData(docSnap);
+    };
     if (user) {
       fetchUserData();
     }
@@ -70,7 +71,7 @@ const HomeSidebar: FC = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(db, "chats"), where("users", "array-contains", email)),
+      query(collection(db, "chats"), where("users", "array-contains", email!)),
       (snapshot) => {
         setLoading(false);
         setChat(snapshot.docs);
@@ -92,21 +93,23 @@ const HomeSidebar: FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      query(collection(db, "users"), where("email", "!=", user?.email)),
-      (snapshot) => {
-        setUserList(snapshot.docs);
-      }
-    );
-    return unsubscribe;
-  }, [db]);
+    if (user) {
+      const unsubscribe = onSnapshot(
+        query(collection(db, "users"), where("email", "!=", email!)),
+        (snapshot) => {
+          setUserList(snapshot.docs);
+        }
+      );
+      return unsubscribe;
+    }
+  }, [user, db, email]);
 
   return (
     <div className="flex flex-col h-full max-h-screen w-screen md:w-3/12 bg-white overflow-hidden sticky top-0 left-0">
       <div className="flex items-center justify-between shadow-2xl px-8 py-2 sticky z-50 top-0">
         <div className="cursor-pointer" onClick={signout}>
           <img
-            src={img as string}
+            src={img!}
             className="w-20 h-20 object-contain rounded-full cursor-pointer   "
           />
         </div>
