@@ -53,6 +53,9 @@ const ChatScreen: FC<Props> = ({ chat }) => {
   >([]);
   const endofMessageRef = useRef<any>(null);
   const [openSidebar, setOpenSidebar] = useRecoilState(sidebarModalState);
+  const [readNotifications, setReadNotifications] = useState<
+    QueryDocumentSnapshot<DocumentData>[]
+  >([]);
 
   useEffect(() => {
     const result = chat?.users?.filter(
@@ -91,6 +94,21 @@ const ChatScreen: FC<Props> = ({ chat }) => {
     );
   }, [id]);
 
+  useEffect(() => {
+    if (messages) {
+      const unsubscribe = onSnapshot(
+        query(
+          collection(db, "chats", id, "messages"),
+          where("read", "==", false)
+        ),
+        (snapshot) => {
+          setReadNotifications(snapshot.docs);
+        }
+      );
+      return unsubscribe;
+    }
+  }, [db, id!, messages, recipient?.email]);
+
   const scrollToBottom = () => {
     endofMessageRef.current.scrollIntoView({
       behavior: "smooth",
@@ -118,6 +136,7 @@ const ChatScreen: FC<Props> = ({ chat }) => {
         timeStamp: serverTimestamp(),
         uid: user?.uid,
         email: user?.email,
+        read: Boolean(false),
       }).then(() => {
         setInput("");
         scrollToBottom();
@@ -128,14 +147,18 @@ const ChatScreen: FC<Props> = ({ chat }) => {
   const toggleSidebar = () => {
     setOpenSidebar(true);
   };
+
   return (
-    <div className="w-screen lg:w-9/12 h-screen">
-      <div className=" sticky z-40 top-0  bg-white flex flex-col xl:flex-row items-center justify-between  px-8 py-2">
+    <div className="w-screen lg:w-9/12 h-screen ">
+      <div className="sticky top-0 z-40 bg-white flex flex-col lg:flex-row p-4">
         <div className="flex items-center space-x-2 w-full">
-          <img
-            src={recipient?.photoURL as string}
-            className="w-20 h-20 object-contain rounded-full"
-          />
+          <div className="flex items-center justify-center rounded-full w-12 h-12 cursor-pointer hover:animate-pulse">
+            <img
+              src={recipient?.photoURL as string}
+              className="w-12 h-12 object-contain rounded-full"
+            />
+          </div>
+
           <div>
             <h3 className="font-bold">{recipient?.username}</h3>
             {recipientSnapShot ? (
@@ -157,24 +180,30 @@ const ChatScreen: FC<Props> = ({ chat }) => {
 
         <div className="flex flex-row items-center space-x-4">
           <div>
-            <IoSearchOutline className="w-8 h-8 inputIcon" />
+            <IoSearchOutline className="w-8 h-8 lg:w-6 lg:h-6 inputIcon" />
           </div>
           <div>
-            <IoAttachOutline className="w-8 h-8 inputIcon" />
+            <IoAttachOutline className="w-8 h-8 lg:w-6 lg:h-6 inputIcon" />
           </div>
           <div>
-            <IoIosMore className="w-8 h-8 inputIcon" />
+            <IoIosMore className="w-8 h-8 lg:w-6 lg:h-6 inputIcon" />
           </div>
-          <div onClick={toggleSidebar} className="inline-flex xl:hidden">
-            <IoMenuOutline className="w-8 h-8 inputIcon" />
+          <div onClick={toggleSidebar} className="flex lg:hidden">
+            <IoMenuOutline className="w-8 h-8 lg:w-6 lg:h-6 inputIcon" />
           </div>
         </div>
       </div>
+      <div className="pb-4" />
       <div className="bg-[#f5e3e6]  flex-1 bg-gradient-to-b from-[#d9e4f5] h-[90vh] overflow-y-scroll scrollbar-hide">
         {messages.length > 0 && <div className="pt-12" />}
 
         {messages?.map((message) => (
-          <Message key={message.id} id={message.id} message={message.data()} />
+          <Message
+            key={message.id}
+            id={message.id}
+            message={message.data()}
+            scrollToBottom={scrollToBottom}
+          />
         ))}
         <div ref={endofMessageRef} className="pb-40" />
       </div>

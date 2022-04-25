@@ -106,12 +106,12 @@ const HomeSidebar: FC = () => {
 
   return (
     <div className="flex flex-col h-full max-h-screen w-screen md:w-3/12 bg-white overflow-hidden sticky top-0 left-0">
-      <div className="flex items-center justify-between shadow-2xl px-8 py-2 sticky z-50 top-0">
-        <div className="cursor-pointer" onClick={signout}>
-          <img
-            src={img!}
-            className="w-20 h-20 object-contain rounded-full cursor-pointer   "
-          />
+      <div className="flex items-center justify-between shadow-2xl p-4 sticky z-50 top-0">
+        <div
+          className="flex items-center justify-center rounded-full w-12 h-12 cursor-pointer hover:animate-pulse"
+          onClick={signout}
+        >
+          <img src={img! as string} className="object-contain rounded-full" />
         </div>
 
         <div className="flex flex-row items-center space-x-4">

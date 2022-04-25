@@ -65,6 +65,7 @@ const UserList: FC<Props> = ({ key, id, users, userList, setToggleUser }) => {
       alert("chat exist");
     }
   };
+
   return (
     <div
       onClick={createChat}

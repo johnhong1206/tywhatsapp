@@ -10,6 +10,7 @@ import {
   where,
   onSnapshot,
   DocumentData,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { chatId } from "../atoms/chatAtoms";
 import { sidebarModalState } from "../atoms/sidebarAtom";
@@ -31,6 +32,9 @@ const Chat: FC<Props> = ({ key, id, users }) => {
   const [recipientSnapShot, setRecipientSnapShot] = useState<DocumentData[]>(
     []
   );
+  const [readNotifications, setReadNotifications] = useState<
+    QueryDocumentSnapshot<DocumentData>[]
+  >([]);
   const [openSidebar, setOpenSidebar] = useRecoilState(sidebarModalState);
 
   useEffect(() => {
@@ -62,25 +66,49 @@ const Chat: FC<Props> = ({ key, id, users }) => {
     router.push(`/chat/${id}`);
   };
 
+  useEffect(() => {
+    if (!loading) {
+      const unsubscribe = onSnapshot(
+        query(
+          collection(db, "chats", id! as string, "messages"),
+          where("read", "==", false),
+          where("email", "==", recipient?.email! as string)
+        ),
+        (snapshot) => {
+          setReadNotifications(snapshot.docs);
+        }
+      );
+      return unsubscribe;
+    }
+  }, [db, id!, loading, recipient?.email]);
+
   return (
     <>
       {!loading ? (
         <div
           key={key}
           onClick={enterChat}
-          className="flex items-center cursor-pointer p-4 hover:text-white hover:bg-[#d99ec9] hover:bg-gradient-to-l from-[#f6f0c4] hover:bg-opacity-50 space-x-2"
+          className="relative flex items-center justify-between cursor-pointer p-4 hover:text-white hover:bg-[#d99ec9] hover:bg-gradient-to-l from-[#f6f0c4] hover:bg-opacity-50 space-x-2"
         >
-          <img
-            loading="lazy"
-            src={recipient?.photoURL!}
-            className="w-12 h-12 rounded-full"
-            alt={recipient?.username!}
-          />
-
-          <div className="flex flex-col ">
-            <p className="font-bold">{recipient?.username}</p>
-            <p className="font-light text-sm">{recipient?.email}</p>
+          <div className="flex flex-row items-center">
+            <img
+              loading="lazy"
+              src={recipient?.photoURL!}
+              className="w-12 h-12 rounded-full"
+              alt={recipient?.username!}
+            />
+            <div className="flex flex-col ml-2 ">
+              <p className="font-bold">{recipient?.username}</p>
+              <p className="font-light text-sm">{recipient?.email}</p>
+            </div>
           </div>
+          {readNotifications?.length >= 1 && (
+            <div className="w-6 h-6 rounded-full leading-6 bg-gray-800/75 text-red-500 text-xs">
+              <p className="text-center items-end">
+                {readNotifications?.length}
+              </p>
+            </div>
+          )}
         </div>
       ) : null}
     </>
