@@ -1,6 +1,5 @@
 ## This is Whatsapp like realtime 1-1 chat app
 This Project is built with NextJs, Atoms, Tailwind CSS, Firebase, Typescrypt
-The native app of this webpage is https://github.com/johnhong1206/zhecommercern
 
 ## Main Function---
 1) 1-1 chat function
